@@ -162,23 +162,43 @@ clf6.fit(X_train, y_train)
 pred6 = clf6.predict(X_test)
 
 # evaluate accuracy
-print("Neural Network Accuracy: " + str(accuracy_score(y_test, pred6)))
+print("Neural Network 1 Accuracy: " + str(accuracy_score(y_test, pred6)))
+
+
+########################################################################
+clf7 = Pipeline([
+  ('feature_selection', SelectFromModel(LinearSVC(penalty="l1", dual=False))),
+  ('classification', MLPClassifier(solver='lbfgs', alpha=1e-5,
+                     hidden_layer_sizes=(100,), random_state=1))])
+
+# fitting the model
+clf7.fit(X_train, y_train)
+
+# predict the response
+pred7 = clf7.predict(X_test)
+
+# evaluate accuracy
+print("Neural Network 2 Accuracy: " + str(accuracy_score(y_test, pred7)))
 
 
 
+
+
+########################################################################
 
 eclf = VotingClassifier(estimators=[('lr', clf4), 
                                     ('rf', clf), 
                                     ('gnb', clf5),
                                     ('erf', clf2),
                                     ('gb', clf3), 
-                                    ('nn', clf6)],
+                                    ('nn1', clf6), 
+                                    ('nn2', clf7)],
                                     voting='hard')
 
 
-for clf, label in zip([clf, clf2, clf3, clf4, clf5,clf6, eclf], ['random forest', 
+for clf, label in zip([clf,clf2,clf3,clf4,clf5,clf6,clf7,eclf], ['random forest', 
 'extra random forest', 'gradient boosting',  
-'logistic regression', 'naive Bayes', 'neural networks',
+'logistic regression', 'naive Bayes', 'neural network 1','neural network 2',
 'ensemble']):
     scores = cross_val_score(clf, X, y, cv=5, scoring='accuracy')
     print("\nAccuracy: %0.2f (+/- %0.2f) [%s]" % (scores.mean(), scores.std(), label))
